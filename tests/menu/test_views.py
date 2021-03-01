@@ -11,6 +11,7 @@ from .utils import setup_models
 pytestmark = pytest.mark.django_db
 
 
+@pytest.fixture
 def auth_client(mocker, client):
     mocker.patch('slack.views.exchange_auth_code',
                  return_value={'user_id': 'a',
