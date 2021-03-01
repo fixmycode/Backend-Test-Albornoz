@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block 'content' %}
 {% include 'nav.html' %}
 <section class="section">
@@ -45,7 +46,7 @@
               </div>
             </div>
             <div class="column is-3">
-              <button class="button is-primary is-fullwidth" @click.prevent="addOption" :disabled="isEmpty">Add
+              <button class="button is-info is-fullwidth" @click.prevent="addOption" :disabled="isEmpty">Add
                 option</button>
             </div>
           </div>
@@ -74,7 +75,7 @@
 {% block 'script' %}
 {{ object.options|json_script:"object-options" }}
 {{ form.errors|json_script:"form-errors"}}
-<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+<script src="{% static 'js/vue.min.js' %}"></script>
 <script type="text/javascript">
   var vm = new Vue({
     el: '#app',

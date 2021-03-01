@@ -16,7 +16,7 @@ Clone the repo to a folder on your machine or server. Then go inside the repo's 
 
 ```bash
 # creates a new virtual environment and activate it
-python -m env env/
+python -m venv env
 source ./env/bin/activate
 
 # install the required packages
@@ -143,7 +143,8 @@ NORA_URL=https://nora.cornershop.io
 #The URL that will be sent on the message to the employees, should direct them to your service
 
 NORA_NOTIFY_HOUR=7 
-#The hour of the day in which the service should send the reminder to the employees. Can be set to -1 to send the message immediately after creating the menu. Ideal for testing.
+#The hour of the day in which the service should send the reminder to the employees. Can be 
+#set to -1 to send the message immediately after creating the menu. Ideal for testing.
 
 NORA_NOTIFY_MINUTE=0
 #Integer between 0-59 to describe when in the hour to send the reminders.
@@ -152,16 +153,19 @@ NORA_THRESHOLD=11
 #Integer between 0-23 in which the service stops receiving orders for the day.
 
 NORA_ONLY_LOCALS=false
-#Restricts the user discovery to just Slack users which timezone matches the service's. This way you can filter for employees from a certain region, like Chile.
+#Restricts the user discovery to just Slack users which timezone matches the service's.
+#This way you can filter for employees from a certain region, like Chile.
 
 NORA_REDIS_SERVER=localhost:6379/0
-#Points to an instance of Redis, by default it assumes that Redis is running on the same machine but you can change it to point to a remote service.
+#Points to an instance of Redis, by default it assumes that Redis is running on the same
+#machine but you can change it to point to a remote service.
 
 NORA_SECRET_KEY=super-secret-key
 #Used by the framework to establish session keys, keep it secret, keep it safe.
 
 NORA_DEBUG=true
-#Shows debug information, also allows you to serve static files locally, so its a good default. Otherwise you will have to serve your own static files, which is out of the scope of this manual.
+#Shows debug information, also allows you to serve static files locally, so its a good default.
+#Otherwise you will have to serve your own static files, which is out of the scope of this manual.
 ```
 
 ## Slack
@@ -174,5 +178,6 @@ SLACK_CLIENT_SECRET=
 #Required. The client secret for your Slack app, see service configuration.
 
 SLACK_USE_REMINDERS=false
-#Use the Slackbot's reminder interface to notify the employees. As reminders can't be updated, it will disable a lot of the app functionality, but it should work.
+#Use the Slackbot's reminder interface to notify the employees. As reminders can't be updated,
+#it will disable a lot of the app functionality, but it should work.
 ```

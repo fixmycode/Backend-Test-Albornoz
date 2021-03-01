@@ -30,7 +30,7 @@
                 <template v-slot:process="{ timeObj }">
                     <h1 class="title">Choose your meal</h1>
                     <h2 class="subtitle" v-if="timeObj.d > 1">Orders close in ${timeObj.d} days, ${ timeObj.h } hours and ${ timeObj.m } minutes.</h2>
-                    <h2 class="subtitle" v-else-if="timeObj.d == 1">Orders close in ${timeObj.d} day and ${ timeObj.h } hours.</h2>
+                    <h2 class="subtitle" v-else-if="timeObj.d == 1">Orders close in ${timeObj.d} day, ${ timeObj.h } hours and ${ timeObj.m } minutes.</h2>
                     <h2 class="subtitle" v-else>Orders close in ${ timeObj.h } hours, ${ timeObj.m } minutes and ${ timeObj.s } seconds.</h2>
                 </template>
                 <template v-slot:finish>
@@ -74,8 +74,8 @@
 {{ object.menu.options|json_script:"object-options" }}
 {{ object.selected|json_script:'object-selected' }}
 {{ form.errors|json_script:"form-errors"}}
-<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
-<script src="https://unpkg.com/vue-awesome-countdown@latest"></script>
+<script src="{% static 'js/vue.min.js' %}"></script>
+<script src="{% static 'js/vac.min.js' %}"></script>
 <script type="text/javascript">
 var vm = new Vue({
   el: '#app',
