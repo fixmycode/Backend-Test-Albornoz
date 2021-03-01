@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block 'content' %}
+<section class="section">
+    <div class="container" id="app">
+      {% if messages %}
+      <ul class="messages">
+          {% for message in messages %}
+          <div class="notification is-success {% if message.tags %}{{ message.tags }}{% endif %}">
+            <button class="delete" @click="deleteNotification"></button>
+            {{ message }}
+          </div>
+          {% endfor %}
+      </ul>
+      {% endif %}
+      <div class="columns is-mobile is-centered">
+        <div class="column is-half">
+          <img src="{% static 'img/logo.png' %}" alt="Nora's">
+          {% if order.fulfilled %}
+              <p>Your order of <strong>{{ order.selected }} {% if order.notes %}({{order.notes}}){% endif %}</strong>
+                  is already being made. Thank you for your patience!</p>
+          {% elif order.is_expired %}
+          <p>Oh no! you couldn't make it in time, this order is now closed.</p>
+          {% else %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" ref="hiddenSelected" name="selected">
+            
+            <vac :end-time="validUntil" @finish="lockForm">
+                <template v-slot:process="{ timeObj }">
+                    <h1 class="title">Choose your meal</h1>
+                    <h2 class="subtitle" v-if="timeObj.d > 1">Orders close in ${timeObj.d} days, ${ timeObj.h } hours and ${ timeObj.m } minutes.</h2>
+                    <h2 class="subtitle" v-else-if="timeObj.d == 1">Orders close in ${timeObj.d} day and ${ timeObj.h } hours.</h2>
+                    <h2 class="subtitle" v-else>Orders close in ${ timeObj.h } hours, ${ timeObj.m } minutes and ${ timeObj.s } seconds.</h2>
+                </template>
+                <template v-slot:finish>
+                    <p>Orders are close!</p>
+                </template>
+            </vac>
+            <div class="vspace"></div>
+            <div>
+                <div class="columns is-vcentered" v-for="opt, idx in options" :key="idx">
+                  <div class="column is-9">
+                    <p class="option"><strong>Option ${idx+1}:</strong> ${opt}</p>
+                  </div>
+                  <div class="column is-3">
+                    <button class="button is-fullwidth" @click.prevent="select(idx)" :class="{'is-info': selected == opt}" :disabled="locked">Select</button>
+                  </div>
+                </div>
+            </div>
+            <div class="vspace"></div>
+            <div class="content">
+              <div class="field">
+                <label class="label">Add any notes</label>
+                <div class="control">
+                  <input class="input" type="text" placeholder="Ex: with no onions" name="notes" v-model="notes" :class="{'is-danger': hasErrors('notes')}">
+                  <p class="help is-danger" v-if="hasErrors('notes')">${errors['notes'][0]}</p>
+                </div>
+              </div>
+            </div>
+            <div class="columns is-centered">
+              <div class="column">
+                <input type="submit" value="Save order" class="button is-primary" :disabled="isEmpty || locked">
+              </div>
+            </div>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+</section>
+{% endblock %}
+{% block 'script' %}
+{{ object.menu.options|json_script:"object-options" }}
+{{ object.selected|json_script:'object-selected' }}
+{{ form.errors|json_script:"form-errors"}}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+<script src="https://unpkg.com/vue-awesome-countdown@latest"></script>
+<script type="text/javascript">
+var vm = new Vue({
+  el: '#app',
+  delimiters: ['${', '}'],
+  data: function () {
+    return {
+      options: [],
+      validUntil: '{{ object.valid_until|date:"c" }}',
+      selected: '',
+      notes: '{{ object.notes|default:"" }}',
+      locked: false,
+      errors: {}
+    }
+  },
+  mounted: function() {
+    let options = JSON.parse(document.getElementById('object-options').textContent)
+    if (options == '') {
+      options = []
+    }
+    this.options = options
+    this.selected = JSON.parse(document.getElementById('object-selected').textContent)
+    this.errors = JSON.parse(document.getElementById('form-errors').textContent)
+    this.refreshOptions()
+  },
+  methods: {
+    select(idx) {
+      this.selected = this.options[idx]
+      this.refreshOptions()
+    },
+    refreshOptions() {
+      this.$refs.hiddenSelected.value = this.selected
+    },
+    hasErrors(name) {
+      return this.errors[name] != null
+    },
+    deleteNotification(ev) {
+      const $notification = ev.target.parentNode
+      $notification.parentNode.removeChild($notification)
+    },
+    lockForm() {
+        this.locked = true
+    }
+  },
+  computed: {
+    isEmpty () {
+      return this.selected == ""
+    }
+  }
+})
+</script>
+{% endblock %}

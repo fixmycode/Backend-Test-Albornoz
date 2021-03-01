@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block 'content' %}
+{% for order in orders %}
+<p>{{order.selected}}</p>
+{% endfor %}
+{% endblock %}

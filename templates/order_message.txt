@@ -1,0 +1,12 @@
+Hello, {{order.employee_real_name}}!
+This is the menu for {% if today == order.date %}today, {% endif %}{{order.date}} 😀
+
+{% for option in order.menu.options %}
+{% if order.selected and option == order.selected %}*Option {{forloop.counter}}: {{option|safe}}* {% if order.notes %}({{order.notes|safe}}){% endif %} ✅{% if order.fulfilled %}✅{% endif %}
+{% else %}Option {{forloop.counter}}: {{option|safe}}
+{% endif %}{% endfor %}
+
+{% if not order.fulfilled %}{% if order.selected %}Change{% else %}Make{% endif %} your selection by following <{{nora_url}}/menu/{{order.id}}|this link>
+{% else %}Your order is being prepared and it will be delivered to you shortly!{% endif %}
+
+Have a nice day! ☺

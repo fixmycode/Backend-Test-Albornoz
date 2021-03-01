@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block 'content' %}
+{% include 'nav.html' %}
+<section class="section">
+    <div class="container">
+        <div class="columns">
+            <div class="column">
+                <h1 class="title">Orders for {{selected_date}}</h1>
+                <form method="get">
+                    <div class="select">
+                        <select name="d">
+                            {% for d in dates %}
+                            <option value="{{d|date:'Ymd'}}" {% if d == selected_date %}selected{% endif %}>{{d}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input class="button is-primary" type="submit" value="Go">
+                </form>
+            </div>
+            <div class="column">
+                {% if pending_orders > 0 %}
+                <article class="message is-info">
+                    <div class="message-header">
+                        <p>Pending orders</p>
+                    </div>
+                    <div class="message-body">
+                        There are {{pending_orders}} pending orders.
+                    </div>
+                </article>
+                {% endif %}
+            </div>
+        </div>
+        
+        <h1 class="title">Active orders</h1>
+
+        <table class="table is-fullwidth is-bordered is-striped is-hoverable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Time</th>
+                    <th>Employee</th>
+                    <th>Selection</th>
+                    <th>Customization</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in active_orders %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{order.modified|date:'H:i'}}</td>
+                    <td>{{order.employee_real_name|title}}</td>
+                    <td>{{order.selected|title}}{% if order.selected not in order.menu.options or not order.menu %}💥{% endif %}</td>
+                    <td>{{order.notes|default:'-'}}</td>
+                    <td><a href="{% url 'menu:order-complete' order.pk %}" class="button is-small">Done</a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No active orders</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <h2 class="title">Completed</h2>
+        
+        <table class="table is-fullwidth is-bordered is-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Time</th>
+                    <th>Employee</th>
+                    <th>Selection</th>
+                    <th>Customization</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in ready_orders %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{order.fulfilled|date:'H:i'}}</td>
+                    <td>{{order.employee_real_name|title}}</td>
+                    <td>{{order.selected|title}}</td>
+                    <td>{{order.notes|default:'-'}}</td>
+                </tr>
+                {% empty %}
+                <tr class="is-disabled">
+                    <td colspan="6">No completed orders</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

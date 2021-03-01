@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block 'content' %}
+<section class="section is-large">
+    <div class="level">
+        <div class="level-item">
+            <div>
+                <img src="{% static 'img/logo.png' %}" width="450px">
+                <div class="buttons is-centered">
+                    <a class="button is-large" href="{{add_link}}">
+                    <span class="icon is-large"><i class="icon-slack"></i></span>
+                    <span>{{link_text}}</span>
+                </a></div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

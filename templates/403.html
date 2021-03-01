@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block 'content' %}
+<section class="section is-large">
+    <div class="level">
+        <div class="level-item">
+            <div>
+                <img src="{% static 'img/kermit.gif' %}" width="450px">
+                <section class="hero has-text-centered">
+                    <div class="hero-body">
+                        <p class="title">Are you lost?</p>
+                    </div>
+                </section>
+                <div class="buttons is-centered">
+                    <a class="button is-large" href="{% url 'slack:login' %}">
+                    Go back
+                </a></div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

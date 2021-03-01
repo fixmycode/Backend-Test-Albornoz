@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block 'content' %}
+{% include 'nav.html' %}
+<section class="section">
+  <div class="container" id="app">
+    {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+      <div class="notification is-success {% if message.tags %}{{ message.tags }}{% endif %}">
+        <button class="delete" @click="deleteNotification"></button>
+        {{ message }}
+      </div>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="columns is-mobile is-centered">
+      <div class="column is-half">
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" ref="hiddenOptions" name="options">
+          {% if object %}
+          <h1 class="title">Editing Menu</h1>
+          {% else %}
+          <h1 class="title">New Menu</h1>
+          {% endif %}
+          <div>
+            <div class="columns is-vcentered" v-for="opt, idx in options" :key="idx">
+              <div class="column is-9">
+                <p class="option"><strong>Option ${idx+1}:</strong> ${opt}</p>
+              </div>
+              <div class="column is-3">
+                <button class="button is-fullwidth" @click.prevent="removeOption(idx)">Remove</button>
+              </div>
+            </div>
+          </div>
+          <div class="vspace"></div>
+          <div class="columns is-vcentered">
+            <div class="column is-9">
+              <div class="field is-fullwidth">
+                <div class="control">
+                  <input class="input" type="text" placeholder="New option" v-model="newOption"
+                    :class="{'is-danger': hasErrors('options')}">
+                  <p class="help is-danger" v-if="hasErrors('options')">${errors['options'][0]}</p>
+                </div>
+              </div>
+            </div>
+            <div class="column is-3">
+              <button class="button is-primary is-fullwidth" @click.prevent="addOption" :disabled="isEmpty">Add
+                option</button>
+            </div>
+          </div>
+          <div class="vspace"></div>
+          <div class="content">
+            <div class="field">
+              <label class="label">Date</label>
+              <div class="control">
+                <input class="input" type="date" placeholder="Text input" name="date" v-model="date"
+                  :class="{'is-danger': hasErrors('date')}" @change="clearErrors('date')" required>
+                <p class="help is-danger" v-if="hasErrors('date')">${errors['date'][0]}</p>
+              </div>
+            </div>
+          </div>
+          <div class="columns is-centered">
+            <div class="column">
+              <input type="submit" value="Save" class="button is-primary">
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block 'script' %}
+{{ object.options|json_script:"object-options" }}
+{{ form.errors|json_script:"form-errors"}}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+<script type="text/javascript">
+  var vm = new Vue({
+    el: '#app',
+    delimiters: ['${', '}'],
+    data: function () {
+      return {
+        options: [],
+        newOption: '',
+        date: "{{ object.date|date:'Y-m-d' }}",
+        errors: {}
+      }
+    },
+    mounted: function () {
+      let options = JSON.parse(document.getElementById('object-options').textContent)
+      if (options == '') {
+        options = []
+      }
+      this.options = options
+      this.errors = JSON.parse(document.getElementById('form-errors').textContent)
+      this.refreshOptions()
+    },
+    methods: {
+      addOption() {
+        if (this.newOption != '') {
+          this.options.push(this.newOption.trim())
+          this.newOption = ''
+          this.refreshOptions()
+          this.clearErrors('options')
+        }
+      },
+      removeOption(idx) {
+        this.options.splice(idx, 1)
+        this.refreshOptions()
+      },
+      refreshOptions() {
+        this.$refs.hiddenOptions.value = JSON.stringify(this.options)
+      },
+      hasErrors(name) {
+        return this.errors[name] != null
+      },
+      clearErrors(name) {
+        this.errors[name] = null
+      },
+      deleteNotification(ev) {
+        const $notification = ev.target.parentNode
+        $notification.parentNode.removeChild($notification)
+      }
+    },
+    computed: {
+      isEmpty() {
+        return this.newOption.trim() == ""
+      }
+    }
+  })
+</script>
+{% endblock %}

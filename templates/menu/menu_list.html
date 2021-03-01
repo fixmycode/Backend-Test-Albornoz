@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block 'content' %}
+{% include 'nav.html' %}
+<section class="section">
+    <div class="container">
+        <div class="level">
+            <div class="level-left"><h1 class="title">Menus</h1></div>
+            <div class="level-right">
+                <a href="{% url 'menu:menu-create' %}" class="button is-primary">New Menu</a>
+            </div>
+        </div>
+        
+        <table class="table is-fullwidth is-bordered is-striped is-hoverable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Options</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for menu in object_list %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{menu.date|date}}</td>
+                    <td>
+                        <ol>
+                            {% for option in menu.options %}
+                            <li>{{option|title}}</li>
+                            {% endfor %}
+                        </ol>
+                    </td>
+                    <td>
+                        <a href="{% url 'menu:menu-update' menu.pk %}" class="button is-small">Edit</a>
+                        <a href="{% url 'menu:menu-delete' menu.pk %}" class="button is-small is-red">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No menus yet</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
