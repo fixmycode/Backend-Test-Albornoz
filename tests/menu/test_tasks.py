@@ -41,6 +41,9 @@ def test_notify_menu_change(mocker):
     order.save()
 
     # order is selected. it will send a message
+    update_order.reset_mock()
+    send_private_message.reset_mock()
+    
     notify_menu_change(menu.id)
     update_order.assert_called_with(order.pk)
     send_private_message.assert_called()

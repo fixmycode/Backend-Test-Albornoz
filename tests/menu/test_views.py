@@ -179,12 +179,16 @@ class TestDeleteMenu:
             reverse('menu:menu-delete', kwargs={'pk': menu.id}))
         assert res.status_code == 200
 
-    def test_delete(self, auth_client):
+    def test_delete(self, auth_client, mocker):
         menu, _ = setup_models(days=1)
         assert Menu.objects.count() == 1
 
+        notify = mocker.patch('menu.views.notify_menu_deleted.delay')
+
         res = auth_client.post(
             reverse('menu:menu-delete', kwargs={'pk': menu.id}))
+
+        notify.assert_called_with(menu.id)
 
         assert res.status_code == 302
         assert Menu.objects.count() == 1
@@ -203,40 +207,48 @@ class TestUpdateOrder:
 
         assert order.selected is None
 
-        mocker.patch('menu.views.update_order')
+        update = mocker.patch('menu.views.update_order.delay')
+
         res = client.post(
             reverse('menu:order-update', kwargs={'pk': order.pk}),
             {'selected': order.menu.options[0]})
+        update.assert_called_with(order.pk)
         assert res.status_code == 302
 
         order.refresh_from_db()
         assert order.selected == order.menu.options[0]
 
 
-def test_order_complete(auth_client):
+def test_order_complete(auth_client, mocker):
     menu, order = setup_models(days=1)
+
+    update = mocker.patch('menu.views.update_order.delay')
 
     # order with no selection
     assert order.selected is None
     res = auth_client.get(
         reverse('menu:order-complete', kwargs={'pk': order.pk}))
     assert res.status_code == 400
+    update.assert_not_called()
     order.refresh_from_db()
     assert order.fulfilled is None
 
     # active order
+    update.reset_mock()
     order.selected = order.menu.options[0]
-    assert order.selected is not None
     order.save()
     res = auth_client.get(
         reverse('menu:order-complete', kwargs={'pk': order.pk}))
     assert res.status_code == 302
+    update.assert_called_with(order.pk)
+    
+    # complete order
+    update.reset_mock()
     order.refresh_from_db()
     assert order.fulfilled is not None
-
-    # complete order
     res = auth_client.get(
         reverse('menu:order-complete', kwargs={'pk': order.pk}))
     assert res.status_code == 400
     order.refresh_from_db()
+    update.assert_not_called()
     assert order.fulfilled is not None
